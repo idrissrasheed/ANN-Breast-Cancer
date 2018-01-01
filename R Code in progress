@@ -1,0 +1,102 @@
+---
+title: "Classifying Benign and Malignant Tumors with Artificial Neural Networks"
+author: "Idris Rasheed"
+date: "January 1, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1. Abstract
+
+
+#2. Introduction 
+
+
+#2.1 Description of the Dataset
+
+        Feature Name |  Feature Type |  Predictor/Response 
+-----------------------+-----------------------------+----------------------:  
+1. Sample code number: id number |  Predictor
+2. Clump Thickness: 1 - 10 |  Predictor
+3. Uniformity of Cell Size: 1 - 10 |  Predictor
+4. Uniformity of Cell Shape: 1 - 10 |  Predictor
+5. Marginal Adhesion: 1 - 10 |  Predictor
+6. Single Epithelial Cell Size: 1 - 10 |  Predictor
+7. Bare Nuclei: 1 - 10 |  Predictor
+8. Bland Chromatin: 1 - 10 |  Predictor
+9. Normal Nucleoli: 1 - 10 |  Predictor
+10. Mitoses: 1 - 10 |  Predictor
+11. Class: (2 for benign, 4 for malignant)|  Response
+
+#2.2 Software Implementation
+For the purpose of this paper, we will be using the statistical programming language R through the RStudio software to write and process our code. All our statistical analysis will be processed with these RStudio's libraries:neuralnet, caret, VIM, gamlss.add and our report will be manifested with RMarkdown. 
+
+#3. Data Preprocessing 
+Our initial phase of this paper begins with installing and unpacking our packages with library() and importing our dataset.
+```{r libs, include=FALSE}
+#Accessing packages for this project
+library(neuralnet)
+library(VIM)
+library(caret)
+library(gamlss.add)
+```
+
+##3.1 Reading Data 
+```{r reading}
+#Create a vector of the feature names
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data"
+bc <- read.csv(url, header = F, na.strings="?", col.names = c("ID","Thickness","USize","UShape", "Adhesion","ESize", "Nuclei", "Chromatin", "Nucleoli", "Mitoses", "Diagnosis"))
+```
+
+Preprocess
+```{r edit}
+bc <- bc[,-1]
+str(bc)
+```
+
+The str() shows that all the features were imported correctly. 
+
+Missing Values
+```{r}
+table(is.na(bc))
+```
+
+Proportion of Missing Values By Feature
+We use aggr() to visual our missing data by feature to understand our dataset better.
+```{r agg}
+aggr(bc, cex.lab=1, cex.axis = .4, numbers = T, gap = 0)
+```
+
+Since there are only 16 missing values that came from the bare nuclei feature, making up for 1% of missing values, we can remove these observations and proceed with the analysis.
+
+```{r missing}
+bc <- na.omit(bc)
+```
+
+Training and Test Sets
+```{r probs}
+prop.table(table(bc$Diagnosis))
+sampleSize <- floor(.7 * nrow(bc))
+```
+
+```{r sets}
+set.seed(10)
+Ind <- sample(seq_len(nrow(bc)), size = sampleSize)
+
+Train <- bc[Ind, ]
+Test <- bc[-Ind, ]
+```
+
+Neural Network 
+```{r Neural Network}
+n <- paste(names(bc[1:9]), collapse = ' + ')
+f <- as.formula(c("Diagnosis ~" , n))
+nn <- neuralnet(f, Train, hidden = c(10), linear.output = FALSE)
+
+plot.nnet(nn,pos.col='blue',neg.col='green',alpha.val=0.3,rel.rsc=10,
+circle.cex=5,cex=1,
+    circle.col='red')
+```
