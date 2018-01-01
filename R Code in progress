@@ -2,7 +2,7 @@
 title: "Classifying Benign and Malignant Tumors with Artificial Neural Networks"
 author: "Idris Rasheed"
 date: "January 1, 2018"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -96,7 +96,5 @@ n <- paste(names(bc[1:9]), collapse = ' + ')
 f <- as.formula(c("Diagnosis ~" , n))
 nn <- neuralnet(f, Train, hidden = c(10), linear.output = FALSE)
 
-plot.nnet(nn,pos.col='blue',neg.col='green',alpha.val=0.3,rel.rsc=10,
-circle.cex=5,cex=1,
-    circle.col='red')
+plot.nnet(nn,pos.col='blue',neg.col='green',alpha.val=0.3,rel.rsc=10,circle.cex=5,cex=1, circle.col='red')
 ```
